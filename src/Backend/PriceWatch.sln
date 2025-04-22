@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PriceWatch.Api", "PriceWatch.Api\PriceWatch.Api.csproj", "{9F38EFDD-2451-419C-88D2-C4CD0ABE63EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PriceWatch.Application", "PriceWatch.Application\PriceWatch.Application.csproj", "{35B0B819-0E68-4D9F-8292-3E1942752D8B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PriceWatch.Domain", "PriceWatch.Domain\PriceWatch.Domain.csproj", "{E96D32F0-79DF-49B3-AEB1-6376DF8F3946}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PriceWatch.Infrastructure", "PriceWatch.Infrastructure\PriceWatch.Infrastructure.csproj", "{5BFEB977-01E2-4961-A6BF-E453FA86E5C6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PriceWatch.Tests", "PriceWatch.Tests\PriceWatch.Tests.csproj", "{65F5B6DA-71F0-4C99-8A1D-91E4F6DEB40E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9F38EFDD-2451-419C-88D2-C4CD0ABE63EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F38EFDD-2451-419C-88D2-C4CD0ABE63EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F38EFDD-2451-419C-88D2-C4CD0ABE63EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F38EFDD-2451-419C-88D2-C4CD0ABE63EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35B0B819-0E68-4D9F-8292-3E1942752D8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35B0B819-0E68-4D9F-8292-3E1942752D8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35B0B819-0E68-4D9F-8292-3E1942752D8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35B0B819-0E68-4D9F-8292-3E1942752D8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E96D32F0-79DF-49B3-AEB1-6376DF8F3946}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E96D32F0-79DF-49B3-AEB1-6376DF8F3946}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E96D32F0-79DF-49B3-AEB1-6376DF8F3946}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E96D32F0-79DF-49B3-AEB1-6376DF8F3946}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BFEB977-01E2-4961-A6BF-E453FA86E5C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BFEB977-01E2-4961-A6BF-E453FA86E5C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BFEB977-01E2-4961-A6BF-E453FA86E5C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BFEB977-01E2-4961-A6BF-E453FA86E5C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65F5B6DA-71F0-4C99-8A1D-91E4F6DEB40E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65F5B6DA-71F0-4C99-8A1D-91E4F6DEB40E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65F5B6DA-71F0-4C99-8A1D-91E4F6DEB40E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65F5B6DA-71F0-4C99-8A1D-91E4F6DEB40E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
