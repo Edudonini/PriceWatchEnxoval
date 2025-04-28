@@ -4,7 +4,10 @@ namespace PriceWatch.Domain.Entities;
 
 public sealed class AlertRule
 {
-    private AlertRule() { }
+    private AlertRule()
+    {
+        TargetPrice = new Money(0, "BRL");
+    }
 
     private AlertRule(Guid id, Guid itemId, Money targetPrice)
     {
