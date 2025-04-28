@@ -33,6 +33,7 @@
               "projects/dashboard/src/assets"
             ],
             "styles": [
+              "@angular/material/prebuilt-themes/indigo-pink.css",
               "projects/dashboard/src/styles.scss"
             ],
             "scripts": [],
@@ -98,6 +99,7 @@
               "projects/dashboard/src/assets"
             ],
             "styles": [
+              "@angular/material/prebuilt-themes/indigo-pink.css",
               "projects/dashboard/src/styles.scss"
             ],
             "scripts": []
