@@ -7,5 +7,6 @@ public enum Category
     LivingRoom,
     Bath,
     Eletronics,
-    Other
+    Other,
+    Electronics
 }
