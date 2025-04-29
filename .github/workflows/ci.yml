@@ -8,16 +8,34 @@ on:
 
 jobs:
   build-test:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest   # SQL Client para migrations
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+
       - name: Restore
         run: dotnet restore src/Backend/PriceWatch.sln
+
       - name: Build
-        run: dotnet build --no-restore --configuration Release src/Backend/PriceWatch.sln
+        run: dotnet build src/Backend/PriceWatch.sln --configuration Release --no-restore
+
       - name: Test
-        run: dotnet test --no-build --configuration Release src/Backend/PriceWatch.Tests/PriceWatch.Tests.csproj
+        run: dotnet test src/Backend/PriceWatch.Tests/PriceWatch.Tests.csproj --configuration Release --no-build
+
+      - name: Generate SQL script (idempotent)
+        run: |
+          dotnet tool install --global dotnet-ef
+          dotnet ef migrations script --idempotent `
+            -p src/Backend/PriceWatch.Infrastructure `
+            -s src/Backend/PriceWatch.Api `
+            -o pricewatch_init.sql `
+            --context AppDbContext
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Migration-SQL
+          path: pricewatch_init.sql
