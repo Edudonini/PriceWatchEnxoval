@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>Novo Item</h2>
+
+<form [formGroup]="form"
+      (ngSubmit)="save()"
+      mat-dialog-content 
+      class="d-flex flex-column gap-4">
+
+  <mat-form-field appearance="outline" class="w-100">
+    <mat-label>Nome</mat-label>
+    <input matInput formControlName="name" autocomplete="off">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="w-100">
+    <mat-label>Categoria</mat-label>
+    <mat-select formControlName="category" required>
+      <mat-option *ngFor="let c of categories" [value]="c.value">
+        {{ c.label }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="w-50">
+    <mat-label>Moeda</mat-label>
+    <input matInput formControlName="currency" maxlength="3" autocomplete="off">
+  </mat-form-field>
+
+</form>
+
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="false">Cancelar</button>
+  <button mat-raised-button color="primary"
+          (click)="save()"
+          [disabled]="form.invalid">
+    Salvar
+  </button>
+</mat-dialog-actions>
