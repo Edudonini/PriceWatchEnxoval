@@ -7,6 +7,7 @@ export interface Item {
   name: string;
   category: number;
   defaultCurrency: string;
+  lastestPrice?: number,
   priceHistory: unknown[];
 }
 export interface CreateItemCommand {
@@ -21,4 +22,11 @@ export class ItemService {
 
   list()  { return this.api.get<Item[]>('items'); }
   create(c: CreateItemCommand): Observable<Item> { return this.api.post<Item>('items', c); }
+
+  update(Id: string, payload: CreateItemCommand){
+    return this.api.put<Item>('items/${id}', payload);
+  }
+  remove(Id:string){
+    return this.api.delete<void>('items/${id}');
+  }
 }

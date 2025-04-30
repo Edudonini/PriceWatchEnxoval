@@ -37,11 +37,7 @@
               "projects/dashboard/src/styles.scss"
             ],
             "scripts": [],
-            "server": "projects/dashboard/src/main.server.ts",
-            "prerender": true,
-            "ssr": {
-              "entry": "projects/dashboard/server.ts"
-            }
+            "ssr": false
           },
           "configurations": {
             "production": {

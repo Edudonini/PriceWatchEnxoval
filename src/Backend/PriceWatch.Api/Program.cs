@@ -6,6 +6,9 @@ using Hangfire;
 using Hangfire.SqlServer;
 using PriceWatch.Infrastructure.Jobs;
 using PriceWatch.Infrastructure.Persistence;
+using PriceWatch.Domain.Repositories;
+using PriceWatch.Infrastructure.Persistence.Repositories;
+using PriceWatch.Application.Items.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +18,7 @@ var connString = builder.Configuration.GetConnectionString("Sql") ??
 
 builder.Services.AddInfrastructure(connString);
 builder.Services.AddMediatR(typeof(CreateItemCommand));
+builder.Services.AddAutoMapper(typeof(ItemsProfile));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHangfire(cfg =>
@@ -25,17 +29,27 @@ builder.Services.AddHangfire(cfg =>
 
 builder.Services.AddHangfireServer();
 
+builder.Services.AddScoped<IItemRepository, ItemRepository>();
 
 
 var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.MapPost("/items", async (CreateItemCommand cmd, IMediator med) =>
+var api = app.MapGroup("/api");
+
+api.MapPost("/items", async (CreateItemCommand cmd, IMediator med) =>
     Results.Ok(await med.Send(cmd)));
 
-app.MapGet("/items", async (IMediator med) =>
+api.MapGet("/items", async (IMediator med) =>
     Results.Ok(await med.Send(new GetItemsQuery())));
+
+api.MapPut("/items/{id:guid}",
+    (Guid id, UpdateItemCommand cmd, ISender s)
+        => s.Send(cmd with { Id = id }));
+
+api.MapDelete("/items/{id:guid}",
+    (Guid id, ISender s) => s.Send(new DeleteItemCommand(id)));
 
 app.UseHangfireDashboard("/jobs");      // painel protegido futuramente
 

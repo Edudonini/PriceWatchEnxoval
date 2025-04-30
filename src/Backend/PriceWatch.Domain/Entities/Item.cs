@@ -37,4 +37,17 @@ public sealed class Item
 
         return new Item(Guid.NewGuid(), name.Trim().ToUpperInvariant(), category, currency.ToUpperInvariant());    
     }
+
+    public void Update(string name, Category category, string currencyIso)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("name cannot be empty", nameof(name));
+        
+        if (currencyIso.Length != 3)
+            throw new ArgumentException("Currency must be 3 letters.", nameof(currencyIso));
+
+        Name = name.Trim();
+        Category = category;
+        DefaultCurrency = currencyIso.ToUpperInvariant();
+    }
 }
