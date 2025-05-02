@@ -8,8 +8,8 @@ using PriceWatch.Domain.Entities;
 public interface IItemRepository
 {
     Task<Item> AddAsync(Item item, CancellationToken ct = default);
-    Task<Item?> GetAsync(Guid id, CancellationToken ct);
-    Task<List<Item>> GetAllAsync(CancellationToken ct);
-    Task SaveAsync  (Item item, CancellationToken ct);
-    Task DeleteAsync(Guid id, CancellationToken ct);
+    Task<Item?> GetAsync(Guid id, CancellationToken ct = default);
+    Task<List<Item>> GetAllAsync(CancellationToken ct = default);
+    Task SaveAsync(Item item, CancellationToken ct = default);
+    Task DeleteAsync(Guid id, CancellationToken ct = default);
 }

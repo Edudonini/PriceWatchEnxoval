@@ -51,6 +51,10 @@ api.MapPut("/items/{id:guid}",
 api.MapDelete("/items/{id:guid}",
     (Guid id, ISender s) => s.Send(new DeleteItemCommand(id)));
 
+api.MapGet("/items/{id:guid}/history",
+    async (Guid id, IMediator med) =>
+        Results.Ok(await med.Send(new GetPriceHistoryQuery(id))));
+
 app.UseHangfireDashboard("/jobs");      // painel protegido futuramente
 
 RecurringJob.AddOrUpdate<PriceCollectorJob>(

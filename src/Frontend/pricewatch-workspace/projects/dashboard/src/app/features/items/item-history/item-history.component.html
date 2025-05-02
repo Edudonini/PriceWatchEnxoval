@@ -1,0 +1,8 @@
+<h2>Histórico de Preços</h2>
+
+<mat-list *ngIf="hist$ | async as hist">
+  <mat-list-item *ngFor="let p of hist">
+    <span class="w-50">{{ p.capturedAtUtc | date:'short' }}</span>
+    <span>{{ p.amount | currency }}</span>
+  </mat-list-item>
+</mat-list>

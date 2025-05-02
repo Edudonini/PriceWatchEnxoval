@@ -24,7 +24,7 @@ describe('ItemListComponent', () => {
   it('edit() deve abrir MatDialog', () => {
     spyOn(dialog,'open').and.returnValue({ afterClosed:()=>of(false) } as any);
     component.edit({
-      id: '1', name: 'X', category: 0, defaultCurrency: 'BRL', lastestPrice: undefined,
+      id: '1', name: 'X', category: 0, defaultCurrency: 'BRL', latestPrice: undefined,
       priceHistory: []
     });
     expect(dialog.open).toHaveBeenCalled();
