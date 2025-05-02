@@ -15,9 +15,9 @@ public sealed class Item
     private Item(Guid id, string name, Category category, string currency)
     {
         Id = id;
-        Name = name;
+        Name = name.ToUpperInvariant();
         Category = category;
-        DefaultCurrency = currency;
+        DefaultCurrency = currency.ToUpperInvariant();
     }
 
     public Guid Id { get; private set; }
@@ -46,7 +46,7 @@ public sealed class Item
         if (currencyIso.Length != 3)
             throw new ArgumentException("Currency must be 3 letters.", nameof(currencyIso));
 
-        Name = name.Trim();
+        Name = name.Trim().ToUpperInvariant();
         Category = category;
         DefaultCurrency = currencyIso.ToUpperInvariant();
     }

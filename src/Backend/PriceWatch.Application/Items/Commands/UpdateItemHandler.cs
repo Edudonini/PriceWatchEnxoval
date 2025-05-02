@@ -20,9 +20,11 @@ public class UpdateItemHandler : IRequestHandler<UpdateItemCommand, ItemDto>
         var item = await _repo.GetAsync(c.Id, ct)
                    ?? throw new NotFoundException(nameof(Item), c.Id);
 
-        item.Update(c.Name, (Category)c.Category, c.Currency);   // regra agregada
+        item.Update(c.Name, c.Category, c.Currency);
         await _repo.SaveAsync(item, ct);
 
         return _map.Map<ItemDto>(item);
     }
 }
+
+

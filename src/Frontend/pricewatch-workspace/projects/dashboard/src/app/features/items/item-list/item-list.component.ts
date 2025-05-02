@@ -9,6 +9,7 @@ import { Observable } from 'rxjs';
 
 import { ItemService, Item } from '../item.service';
 import { ItemEditDialogComponent } from '../item-edit-dialog/item-edit-dialog.component';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'pw-item-list',
@@ -75,11 +76,17 @@ export class ItemListComponent {
     this.dlg.open(ItemEditDialogComponent,{data: it, width:'420px'})
         .afterClosed().subscribe(ok => ok && this.load());
   }
-  confirmDelete(it: Item){
-    if(!confirm('Excluir "$(it.name)"?')) return;
-    this.svc.remove(it.id).subscribe(()=>{
-      this.snack.open('Excluído', 'OK',{duration:1500});
-      this.load();
-    })
-  }
+  confirmDelete(it: Item) {
+    if (!confirm(`Excluir "${it.name}"?`)) return;
+  
+    this.svc.remove(it.id).subscribe(() => {
+  
+      this.snack.open('Excluído', 'OK', { duration: 1500 });
+  
+      /* ajusta o observable local */
+      this.items$ = this.items$.pipe(
+        map(list => list.filter(x => x.id !== it.id))
+      );
+    });
+  }  
 }
