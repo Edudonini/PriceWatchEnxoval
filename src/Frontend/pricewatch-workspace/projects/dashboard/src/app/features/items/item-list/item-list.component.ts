@@ -1,92 +1,123 @@
-import { Component, inject } from '@angular/core';
+import {
+  Component, inject, ChangeDetectionStrategy, OnInit, ChangeDetectorRef
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
+import {
+  MatTableModule,
+  MatTableDataSource
+} from '@angular/material/table';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule }   from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Observable } from 'rxjs';
+import { RouterLink, RouterModule } from '@angular/router';
 
 import { ItemService, Item } from '../item.service';
 import { ItemEditDialogComponent } from '../item-edit-dialog/item-edit-dialog.component';
-import { map } from 'rxjs/operators';
 
 @Component({
-  selector: 'pw-item-list',
   standalone: true,
+  selector: 'pw-item-list',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
+    RouterLink,
+    RouterModule, 
     MatTableModule,
-    MatButtonModule,
     MatDialogModule,
+    MatButtonModule,
     MatIconModule,
     MatSnackBarModule,
-    ItemEditDialogComponent
   ],
   template: `
 <h2>Itens monitorados</h2>
-<button mat-raised-button color="primary" (click)="open()">NOVO ITEM</button>
 
-<table mat-table [dataSource]="data ?? []" class="mat-elevation-z2 mt-3" *ngIf="items$ | async as data">
+<button mat-raised-button color="primary" (click)="openNew()">NOVO ITEM</button>
+
+<table mat-table [dataSource]="ds" class="mat-elevation-z2 mt-3" *ngIf="ds.data.length">
+
+  <!-- nome -->
   <ng-container matColumnDef="name">
     <th mat-header-cell *matHeaderCellDef>Nome</th>
     <td mat-cell        *matCellDef="let r">{{ r.name }}</td>
   </ng-container>
 
+  <!-- categoria -->
   <ng-container matColumnDef="category">
     <th mat-header-cell *matHeaderCellDef>Cat.</th>
     <td mat-cell        *matCellDef="let r">{{ r.category }}</td>
   </ng-container>
 
+  <!-- history link -->
+  <ng-container matColumnDef="prices">
+    <th mat-header-cell *matHeaderCellDef>Histórico</th>
+    <td mat-cell *matCellDef="let r">
+      <a [routerLink]="[r.id,'history']" mat-icon-button title="Ver gráfico">
+        <mat-icon fontIcon="show_chart"></mat-icon>
+      </a>
+    </td>
+  </ng-container>
+
+  <!-- ações -->
   <ng-container matColumnDef="actions">
-  <th mat-header-cell *matHeaderCellDef>Ações</th>
-  <td  mat-cell        *matCellDef="let r">
-    <button mat-icon-button color="primary" (click)="edit(r)">
-      <mat-icon fontIcon="edit"></mat-icon>
-    </button>
-    
-    <button mat-icon-button color="warn" (click)="confirmDelete(r)">
-      <mat-icon fontIcon="delete"></mat-icon>
-    </button>
-  </td>
-</ng-container>
+    <th mat-header-cell *matHeaderCellDef>Ações</th>
+    <td mat-cell *matCellDef="let r">
+      <button mat-icon-button color="primary" (click)="openEdit(r)">
+        <mat-icon fontIcon="edit"></mat-icon>
+      </button>
+      <button mat-icon-button color="warn" (click)="delete(r)">
+        <mat-icon fontIcon="delete"></mat-icon>
+      </button>
+    </td>
+  </ng-container>
 
   <tr mat-header-row *matHeaderRowDef="cols"></tr>
-  <tr mat-row        *matRowDef="let row; columns: cols;"></tr>
+  <tr mat-row        *matRowDef="let row; columns: cols; trackBy: trackId"></tr>
 </table>
+
+<p *ngIf="!ds.data.length" style="margin-top: 2rem; color: #888; font-size: 1.2rem;">
+  Nenhum item cadastrado.
+</p>
+
+<router-outlet></router-outlet>
 `,
   styles: [`table{width:100%}`]
 })
-export class ItemListComponent {
-  private svc = inject(ItemService);
-  private dlg = inject(MatDialog);
+export class ItemListComponent implements OnInit {
+  private svc   = inject(ItemService);
+  private dlg   = inject(MatDialog);
   private snack = inject(MatSnackBar);
+  private cdr   = inject(ChangeDetectorRef);
 
-  items$!: Observable<Item[]>;
-  cols = ['name','category','actions'];
+  /** DataSource material */
+  ds = new MatTableDataSource<Item>([]);
+  readonly cols = ['name','category','prices','actions'];
 
-  ngOnInit(){ this.load(); }
-  load(){ this.items$ = this.svc.list(); }
-
-  open(){
-    this.dlg.open(ItemEditDialogComponent,{width:'420px'})
-        .afterClosed().subscribe(ok=>ok&&this.load());
-  }
-  edit(it: Item){
-    this.dlg.open(ItemEditDialogComponent,{data: it, width:'420px'})
-        .afterClosed().subscribe(ok => ok && this.load());
-  }
-  confirmDelete(it: Item) {
-    if (!confirm(`Excluir "${it.name}"?`)) return;
-  
-    this.svc.remove(it.id).subscribe(() => {
-  
-      this.snack.open('Excluído', 'OK', { duration: 1500 });
-  
-      /* ajusta o observable local */
-      this.items$ = this.items$.pipe(
-        map(list => list.filter(x => x.id !== it.id))
-      );
+  ngOnInit() {
+    this.svc.items$.subscribe(d => {
+      this.ds.data = d;
+      this.cdr.markForCheck();
     });
-  }  
+    this.svc.refresh();
+  }
+
+  trackId = (_:number,r:Item) => r.id;
+
+  async openNew() {
+    const ref = this.dlg.open(ItemEditDialogComponent,{width:'420px'});
+    const ok  = await ref.afterClosed().toPromise();
+    if (ok) this.snack.open('Item criado','OK',{duration:1500});
+  }
+
+  async openEdit(it: Item) {
+    const ref = this.dlg.open(ItemEditDialogComponent,{data:it,width:'420px'});
+    const ok  = await ref.afterClosed().toPromise();
+    if (ok) this.snack.open('Item atualizado','OK',{duration:1500});
+  }
+
+  async delete(it: Item) {
+    if(!confirm(`Excluir "${it.name}"?`)) return;
+    await this.svc.remove(it.id);
+    this.snack.open('Excluído','OK',{duration:1500});
+  }
 }
