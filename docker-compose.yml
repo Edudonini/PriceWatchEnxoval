@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  sql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=SqlStrong!Pass1
+    ports: ["1433:1433"]
+
+  api:
+    build:
+      context: ../..
+      dockerfile: docker/Dockerfile.api
+    environment:
+      - ConnectionStrings__Sql=Server=sql,1433;Database=PriceWatch;User Id=sa;Password=SqlStrong!Pass1;TrustServerCertificate=True
+    depends_on: [sql]
+    ports: ["5265:8080"]
+
+  web:
+    build:
+      context: ../..
+      dockerfile: docker/Dockerfile.web
+    depends_on: [api]
+    ports: ["4200:4200"]

@@ -1,73 +1,59 @@
+// projects/dashboard/src/app/features/items/item-edit-dialog/item-edit-dialog.component.ts
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule }      from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { MatFormFieldModule }  from '@angular/material/form-field';
-import { MatInputModule }      from '@angular/material/input';
-import { MatSelectModule }     from '@angular/material/select';
-import { MatButtonModule }     from '@angular/material/button';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 
-import { ItemService, Item, CreateItemCommand } from '../item.service';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule }     from '@angular/material/input';
+import { MatSelectModule }    from '@angular/material/select';
+import { MatButtonModule }    from '@angular/material/button';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+
+import { ItemService, CreateItemCommand, Item } from '../item.service';
 
 @Component({
-  selector: 'pw-item-edit-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatSnackBarModule
+  selector   : 'pw-item-edit-dialog',
+  standalone : true,
+  imports    : [
+    CommonModule, ReactiveFormsModule, MatDialogModule,
+    MatFormFieldModule, MatInputModule, MatSelectModule,
+    MatButtonModule, MatSnackBarModule
   ],
   templateUrl: './item-edit-dialog.component.html'
 })
 export class ItemEditDialogComponent {
-  categories = [
-    { value: 0, label: 'Kitchen' },
-    { value: 1, label: 'Electronics' },
-    { value: 2, label: 'Furniture' },
-  ];
 
+  /* injeções ----------------------------------------------------------- */
   private fb    = inject(FormBuilder);
   private svc   = inject(ItemService);
   private ref   = inject(MatDialogRef<ItemEditDialogComponent>);
-  private data  = inject(MAT_DIALOG_DATA) as Item | null;          
+  private data  = inject(MAT_DIALOG_DATA, { optional: true }) as Item | null;
   private snack = inject(MatSnackBar);
 
+  /* categorias fixas --------------------------------------------------- */
+  categories = [
+    { value: 0, label: 'Kitchen'      },
+    { value: 1, label: 'Electronics'  },
+    { value: 2, label: 'Furniture'    },
+  ];
+
+  /* form reativo ------------------------------------------------------- */
   form = this.fb.group({
-    name:     [this.data?.name     || '',     Validators.required],
-    category: [this.data?.category ?? 0,      Validators.required],
-    currency: [this.data?.defaultCurrency || '', [
-                  Validators.required,
-                  Validators.minLength(3),
-                  Validators.maxLength(3)
-               ]]
+    name    : [this.data?.name            ?? '', Validators.required],
+    category: [this.data?.category        ?? 0 , Validators.required],
+    currency: [this.data?.defaultCurrency ?? '',
+               [Validators.required, Validators.minLength(3)]]
   });
 
-  save() {
-    if (this.form.invalid) return;
-
-    const cmd: CreateItemCommand = {
-      name:     this.form.value.name!,
-      category: this.form.value.category!,
-      currency: this.form.value.currency!
-    };
-
-    const op$ = this.data?.id
-      ? this.svc.update(this.data.id, cmd)
-      : this.svc.create(cmd);
-
-    op$.subscribe(() => {
-      this.snack.open(
-        this.data?.id ? 'Item atualizado' : 'Item criado',
-        'OK',
-        { duration: 2000 }
-      );
-      this.ref.close(true);
-    });
+  /* botão Salvar ------------------------------------------------------- */
+  async save(){
+    const cmd = this.form.value as CreateItemCommand;
+    const op  = this.data        // data injetado = item?
+              ? this.svc.update(this.data.id,cmd)
+              : this.svc.create(cmd);
+  
+    await op;                    // espera resolver
+    this.ref.close(true);        // true = refresh / snackbar
   }
 }
