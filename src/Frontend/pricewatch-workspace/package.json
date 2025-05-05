@@ -11,7 +11,8 @@
     "e2e": "playwright install chromium && playwright test --config=tests/e2e/playwright.config.ts",
     "e2e:ui": "playwright install chromium && playwright test --config=tests/e2e/playwright.config.ts --ui",
     "e2e:debug": "playwright install chromium && playwright test --config=tests/e2e/playwright.config.ts --debug",
-    "e2e:install": "playwright install chromium"
+    "e2e:install": "playwright install chromium",
+    "test:headless": "playwright test --config=tests/e2e/playwright.config.ts --headed=false"
   },
   "private": true,
   "dependencies": {

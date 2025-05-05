@@ -12,7 +12,7 @@ import {
   ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BaseChartDirective } from 'ng2-charts';
+import { BaseChartDirective, NgChartsModule } from 'ng2-charts';
 import { ChartConfiguration, ChartData, Chart, registerables } from 'chart.js';
 import { firstValueFrom } from 'rxjs';
 
@@ -24,7 +24,7 @@ Chart.register(...registerables);
 @Component({
   standalone: true,
   selector: 'pw-item-history',
-  imports: [CommonModule, BaseChartDirective],
+  imports: [CommonModule, NgChartsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="chart-container">

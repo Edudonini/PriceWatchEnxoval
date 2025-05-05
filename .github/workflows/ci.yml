@@ -2,12 +2,12 @@ name: ci
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, 'feature/*' ]
   pull_request:
     branches: [ main ]
 
 jobs:
-  build-test:
+  backend:
     runs-on: windows-latest   # SQL Client para migrations
 
     steps:
@@ -24,10 +24,140 @@ jobs:
       - name: Build
         run: dotnet build src/Backend/PriceWatch.sln --configuration Release --no-restore
 
-      - name: Test
-        run: dotnet test src/Backend/PriceWatch.Tests/PriceWatch.Tests.csproj --configuration Release --no-build
+      - name: Test with coverage
+        run: |
+          dotnet test src/Backend/PriceWatch.Tests/PriceWatch.Tests.csproj `
+            --configuration Release `
+            --no-build `
+            --collect:"XPlat Code Coverage" `
+            --settings coverlet.runsettings
 
-      - name: Generate SQL script (idempotent)
+      - name: Upload coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: src/Backend/PriceWatch.Tests/TestResults
+
+  integration-tests:
+    runs-on: windows-latest
+    needs: backend
+
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/azure-sql-edge:latest
+        env:
+          ACCEPT_EULA: 1
+          SA_PASSWORD: Your_password123
+          MSSQL_PID: Developer
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Your_password123 -Q "SELECT 1" -b -o /dev/null
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore src/Backend/PriceWatch.sln
+
+      - name: Build
+        run: dotnet build src/Backend/PriceWatch.sln --configuration Release --no-restore
+
+      - name: Run integration tests
+        env:
+          ConnectionStrings__Sql: "Server=localhost;Database=PriceWatch;User Id=sa;Password=Your_password123;TrustServerCertificate=True"
+        run: |
+          dotnet test src/Backend/PriceWatch.Tests/PriceWatch.Tests.csproj `
+            --configuration Release `
+            --no-build `
+            --filter Category=Integration
+
+  frontend:
+    runs-on: windows-latest
+    needs: [backend, integration-tests]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test:headless
+
+      - name: Build
+        run: npm run build -- --configuration production
+
+      - name: Upload dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist/
+
+  e2e-tests:
+    runs-on: windows-latest
+    needs: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist
+
+      - name: Install http-server
+        run: npm install -g http-server
+
+      - name: Start http-server
+        run: http-server dist -p 8080 &
+        shell: pwsh
+
+      - name: Install Playwright
+        run: npx playwright install chromium firefox webkit
+
+      - name: Run Playwright tests
+        run: npx playwright test
+        env:
+          BASE_URL: http://localhost:8080
+
+  database:
+    runs-on: windows-latest
+    needs: [backend, integration-tests, frontend, e2e-tests]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Generate SQL script
         run: |
           dotnet tool install --global dotnet-ef
           dotnet ef migrations script --idempotent `
@@ -35,6 +165,7 @@ jobs:
             -s src/Backend/PriceWatch.Api `
             -o pricewatch_init.sql `
             --context AppDbContext
+
       - uses: actions/upload-artifact@v4
         with:
           name: Migration-SQL

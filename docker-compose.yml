@@ -1,24 +1,49 @@
-version: "3.9"
-services:
-  sql:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=SqlStrong!Pass1
-    ports: ["1433:1433"]
+version: '3.8'
 
+services:
   api:
     build:
-      context: ../..
-      dockerfile: docker/Dockerfile.api
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "5000:80"
     environment:
-      - ConnectionStrings__Sql=Server=sql,1433;Database=PriceWatch;User Id=sa;Password=SqlStrong!Pass1;TrustServerCertificate=True
-    depends_on: [sql]
-    ports: ["5265:8080"]
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Sql=Server=sqlserver;Database=PriceWatch;User Id=sa;Password=Your_password123;TrustServerCertificate=True
+    depends_on:
+      - sqlserver
 
-  web:
+  frontend:
     build:
-      context: ../..
-      dockerfile: docker/Dockerfile.web
-    depends_on: [api]
-    ports: ["4200:4200"]
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - api
+
+  sqlserver:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    environment:
+      - ACCEPT_EULA=1
+      - SA_PASSWORD=Your_password123
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+
+  sqlserver_test:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    environment:
+      - ACCEPT_EULA=1
+      - SA_PASSWORD=Your_password123
+      - MSSQL_PID=Developer
+    ports:
+      - "1434:1433"
+    volumes:
+      - sqlserver_test_data:/var/opt/mssql
+
+volumes:
+  sqlserver_data:
+  sqlserver_test_data:

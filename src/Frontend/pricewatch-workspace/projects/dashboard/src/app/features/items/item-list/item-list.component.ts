@@ -66,13 +66,13 @@ import { ItemEditDialogComponent } from '../item-edit-dialog/item-edit-dialog.co
         <mat-icon fontIcon="edit"></mat-icon>
       </button>
       <button mat-icon-button color="warn" (click)="delete(r)">
-        <mat-icon fontIcon="delete"></mat-icon>
+        <mat-icon fontIcon="delete" data-testid="delete-icon"></mat-icon>
       </button>
     </td>
   </ng-container>
 
   <tr mat-header-row *matHeaderRowDef="cols"></tr>
-  <tr mat-row        *matRowDef="let row; columns: cols; trackBy: trackId"></tr>
+  <tr mat-row *matRowDef="let row; columns: cols"></tr>
 </table>
 
 <p *ngIf="!ds.data.length" style="margin-top: 2rem; color: #888; font-size: 1.2rem;">
@@ -101,7 +101,7 @@ export class ItemListComponent implements OnInit {
     this.svc.refresh();
   }
 
-  trackId = (_:number,r:Item) => r.id;
+  trackId = (_: number, r: Item) => r.id;
 
   async openNew() {
     const ref = this.dlg.open(ItemEditDialogComponent,{width:'420px'});
