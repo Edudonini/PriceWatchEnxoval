@@ -1,5 +1,13 @@
 FROM node:20-alpine
 WORKDIR /app
-COPY src/Frontend/pricewatch-workspace .
+COPY package.json package-lock.json ./
 RUN npm ci
-CMD ["npm","start","--","--host","0.0.0.0"]
+COPY . .
+RUN npm run build
+
+# Instalar Playwright e suas dependências
+RUN npx playwright install chromium firefox webkit
+RUN npx playwright install-deps
+
+EXPOSE 80
+CMD ["npm", "run", "start"]
